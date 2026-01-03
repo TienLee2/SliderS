@@ -185,6 +185,19 @@ public class SceneController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.S)) expIndex = 1;
         if (Input.GetKeyDown(KeyCode.D)) expIndex = 2;
         if (Input.GetKeyDown(KeyCode.F)) expIndex = 3;
+        if (Input.GetKeyDown(KeyCode.G)) expIndex = 4;
+        if (Input.GetKeyDown(KeyCode.H)) expIndex = 5;
+        if (Input.GetKeyDown(KeyCode.J)) expIndex = 6;
+        if (Input.GetKeyDown(KeyCode.K)) expIndex = 7;
+        if (Input.GetKeyDown(KeyCode.L)) expIndex = 8;
+        if (Input.GetKeyDown(KeyCode.Z)) expIndex = 9;
+        if (Input.GetKeyDown(KeyCode.X)) expIndex = 10;
+        if (Input.GetKeyDown(KeyCode.C)) expIndex = 11;
+        if (Input.GetKeyDown(KeyCode.V)) expIndex = 12;
+        if (Input.GetKeyDown(KeyCode.B)) expIndex = 13;
+        if (Input.GetKeyDown(KeyCode.N)) expIndex = 14;
+        if (Input.GetKeyDown(KeyCode.M)) expIndex = 15;
+
 
         if (expIndex != -1)
         {
