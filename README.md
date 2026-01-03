@@ -1,4 +1,3 @@
-# SliderS
 # PowerPoint but worse
 
 ## How can i use the tool?
@@ -16,6 +15,7 @@ Basically you can cheat using multiple character sprite in one character for its
 ![alt text][logo1]
 
 ## My image is broken/blurry
+Checking the image import, make sure it look like this
 
 ![alt text][logo2]
 
