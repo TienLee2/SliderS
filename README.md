@@ -39,10 +39,16 @@ Fourth, maybe your image resolution is too low, in this case use any AI upscalin
 
 Check the SceneController object, it's have a SceneController script which you can control the transtion 
 
+## Can I add music?
 
+Yes, music can be play/stop by pressing "P"
 
+Add your intro and your loop into the project, then assign them in the AudioSource components, twerking the Sound Manager if you like, then you are good to go
+
+![alt text][logo4]
 
 [logo]: https://github.com/TienLee2/SliderS/blob/main/image.png "Logo Title Text 1"
 [logo1]: https://github.com/TienLee2/SliderS/blob/main/image_2026-01-03_164648399.png "Logo Title Text 1"
 [logo2]: https://github.com/TienLee2/SliderS/blob/main/image_2026-01-03_165833845.png "Logo Title Text 1"
 [logo3]: https://github.com/TienLee2/SliderS/blob/main/image_2026-01-03_170329071.png "Logo Title Text 1"
+[logo4]: https://github.com/TienLee2/SliderS/blob/main/image_2026-01-04_162147757.png "Logo Title Text 1"
