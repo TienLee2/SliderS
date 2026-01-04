@@ -239,6 +239,7 @@ MonoBehaviour:
   introSource: {fileID: 1365448636}
   loopSource: {fileID: 1055388365}
   masterVolume: 1
+  crossFadeDuration: 1.5
 --- !u!1 &173211309
 GameObject:
   m_ObjectHideFlags: 0
@@ -1150,7 +1151,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: ac2f15c86d180b049b8bed9091ad8199, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
