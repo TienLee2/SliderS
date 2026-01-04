@@ -100,7 +100,7 @@ public class AudioManager : MonoBehaviour
             introSource.volume = masterVolume;
             introSource.Play();
 
-            float waitTime = intro.length - crossFadeDuration;
+            float waitTime = intro.length;
 
             if (waitTime > 0)
             {
