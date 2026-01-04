@@ -1,4 +1,3 @@
-# SliderS
 # PowerPoint but worse
 
 ## How can i use the tool?
@@ -6,7 +5,9 @@
 ![alt text][logo]
 
 1, 2, 3 is scene transtion
+
 Q, W, E is character 
+
 A -> M is emotes
 
 Basically you can cheat using multiple character sprite in one character for its to display many different character in one slot
@@ -16,6 +17,7 @@ Basically you can cheat using multiple character sprite in one character for its
 ![alt text][logo1]
 
 ## My image is broken/blurry
+Checking the image import, make sure it look like this
 
 ![alt text][logo2]
 
