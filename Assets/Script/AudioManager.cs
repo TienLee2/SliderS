@@ -107,11 +107,13 @@ public class AudioManager : MonoBehaviour
                 // Chờ đến thời điểm bắt đầu Fade
                 yield return new WaitForSecondsRealtime(waitTime);
 
-                // C. Nếu có Loop -> Thực hiện Crossfade
-                if (loop != null)
-                {
-                    yield return StartCoroutine(Routine_CrossFadeToLoop(loop));
-                }
+                PlayLoopImmediately(loop);
+
+                //// C. Nếu có Loop -> Thực hiện Crossfade
+                //if (loop != null)
+                //{
+                //    yield return StartCoroutine(Routine_CrossFadeToLoop(loop));
+                //}
             }
             else
             {
