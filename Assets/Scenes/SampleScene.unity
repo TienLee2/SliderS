@@ -236,10 +236,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a83d9568d34a4c409b9e1e02b72adf0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  introSource: {fileID: 1365448636}
-  loopSource: {fileID: 1055388365}
   masterVolume: 1
-  crossFadeDuration: 1.5
+  lookAheadTime: 1
+  defaultIntroClip: {fileID: 8300000, guid: ac2f15c86d180b049b8bed9091ad8199, type: 3}
+  defaultLoopClip: {fileID: 8300000, guid: 8386b3ac0bbdd744696c45dad52e3f01, type: 3}
+  hasIntroPlayed: 0
 --- !u!1 &173211309
 GameObject:
   m_ObjectHideFlags: 0

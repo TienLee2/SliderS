@@ -1,186 +1,143 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
-    [Header("Components")]
-    [SerializeField] private AudioSource introSource;
-    [SerializeField] private AudioSource loopSource;
-
-    [Header("Settings")]
+    [Header("Configuration")]
     [Range(0f, 1f)] public float masterVolume = 1.0f;
-    [Tooltip("Fade duration")]
-    [SerializeField] private float crossFadeDuration = 1.5f;
+    public double lookAheadTime = 1.0f;
 
-    private AudioClip currentIntroClip;
-    private AudioClip currentLoopClip;
-    private Coroutine musicCoroutine;
+    [Header("Data")]
+    public AudioClip defaultIntroClip;
+    public AudioClip defaultLoopClip;
+
+    private AudioSource[] audioSourcePool;
+    private int toggle = 0;
+
+    private AudioClip currentIntro;
+    private AudioClip currentLoop;
+
+    private double nextStartTime; 
+    private bool isPlaying = false;
+    [SerializeField] private bool hasIntroPlayed = false;
 
     private void Awake()
     {
-        SetupSingleton();
-        SetupAudioSources();
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+
+        // Tạo 2 AudioSource để thay phiên nhau phát 
+        audioSourcePool = new AudioSource[2];
+        for (int i = 0; i < 2; i++)
+        {
+            audioSourcePool[i] = gameObject.AddComponent<AudioSource>();
+            audioSourcePool[i].playOnAwake = false;
+            audioSourcePool[i].loop = false;
+        }
+
+        // Load data mặc định
+        currentIntro = defaultIntroClip;
+        currentLoop = defaultLoopClip;
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            if (musicCoroutine != null)
+            if (!isPlaying)
             {
-                musicCoroutine = null;
-                StopMusic();
-                return;
+                if (defaultIntroClip != null || defaultLoopClip != null)
+                {
+                    PlayBGM(defaultIntroClip, defaultLoopClip);
+                    Debug.Log(">>> [AudioManager] Bắt đầu phát nhạc (Intro -> Loop)...");
+                }
             }
-
-            if (currentIntroClip != null || currentLoopClip != null)
+            else
             {
-                PlayBGM(currentIntroClip, currentLoopClip);
-                Debug.Log("P pressed: Starting Music...");
+                StopMusic();
+            }
+        }
+
+        if (isPlaying)
+        {
+            if (AudioSettings.dspTime > nextStartTime - lookAheadTime)
+            {
+                ScheduleNextClip();
             }
         }
     }
 
     public void PlayBGM(AudioClip introClip, AudioClip loopClip)
     {
-        //Reset trạng thái
-        introSource.volume = masterVolume;
-        loopSource.volume = masterVolume;
+        if (isPlaying && currentIntro == introClip && currentLoop == loopClip) return;
 
-        currentIntroClip = introClip;
-        currentLoopClip = loopClip;
+        StopMusic();
 
-        //Reset Coroutine cũ
-        StopCurrentRoutine();
+        currentIntro = introClip;
+        currentLoop = loopClip;
 
-        //Bắt đầu luồng nhạc mới
-        if (introClip != null || loopClip != null)
+        if (currentIntro != null || currentLoop != null)
         {
-            musicCoroutine = StartCoroutine(Routine_MusicSequence(introClip, loopClip));
+            PlayMusicInternal();
         }
     }
 
     public void StopMusic()
     {
-        StopCurrentRoutine();
-        introSource.Stop();
-        loopSource.Stop();
-    }
-
-    public IEnumerator FadeOutMusic(float duration)
-    {
-        float startIntroVol = introSource.volume;
-        float startLoopVol = loopSource.volume;
-        float timer = 0;
-
-        while (timer < duration)
+        isPlaying = false;
+        foreach (var source in audioSourcePool)
         {
-            timer += Time.unscaledDeltaTime;
-            float progress = timer / duration;
-
-            introSource.volume = Mathf.Lerp(startIntroVol, 0f, progress);
-            loopSource.volume = Mathf.Lerp(startLoopVol, 0f, progress);
-            yield return null;
-        }
-
-        StopMusic();
-        // Reset volume cho lần sau
-        introSource.volume = masterVolume;
-        loopSource.volume = masterVolume;
-    }
-
-    private IEnumerator Routine_MusicSequence(AudioClip intro, AudioClip loop)
-    {
-        // TRƯỜNG HỢP 1: Có đoạn Intro
-        if (intro != null)
-        {
-            introSource.clip = intro;
-            introSource.volume = masterVolume;
-            introSource.Play();
-
-            float waitTime = intro.length;
-
-            if (waitTime > 0)
-            {
-                // Chờ đến thời điểm bắt đầu Fade
-                yield return new WaitForSecondsRealtime(waitTime);
-
-                PlayLoopImmediately(loop);
-
-                //// C. Nếu có Loop -> Thực hiện Crossfade
-                //if (loop != null)
-                //{
-                //    yield return StartCoroutine(Routine_CrossFadeToLoop(loop));
-                //}
-            }
-            else
-            {
-                yield return new WaitForSecondsRealtime(intro.length);
-                if (loop != null) PlayLoopImmediately(loop);
-            }
-
-            introSource.Stop();
-        }
-        // TRƯỜNG HỢP 2: Không có Intro, chỉ có Loop
-        else if (loop != null)
-        {
-            PlayLoopImmediately(loop);
+            source.Stop();
+            source.clip = null;
         }
     }
 
-    private IEnumerator Routine_CrossFadeToLoop(AudioClip loop)
+    private void PlayMusicInternal()
     {
-        loopSource.clip = loop;
-        loopSource.volume = 0;
-        loopSource.Play();
+        isPlaying = true;
+        hasIntroPlayed = false;
+        toggle = 0;
 
-        float timer = 0f;
-        while (timer < crossFadeDuration)
+        nextStartTime = AudioSettings.dspTime + 0.2;
+
+        audioSourcePool[0].volume = masterVolume;
+        audioSourcePool[1].volume = masterVolume;
+
+        ScheduleNextClip();
+    }
+
+    private void ScheduleNextClip()
+    {
+        AudioClip clipToPlay = null;
+
+        if (currentIntro != null && !hasIntroPlayed)
         {
-            timer += Time.unscaledDeltaTime;
-            float t = timer / crossFadeDuration;
-
-            // Intro nhỏ dần, Loop to dần
-            introSource.volume = Mathf.Lerp(masterVolume, 0f, t);
-            loopSource.volume = Mathf.Lerp(0f, masterVolume, t);
-
-            yield return null;
+            clipToPlay = currentIntro;
+            hasIntroPlayed = true; 
+        }
+        else
+        {
+            clipToPlay = currentLoop;
         }
 
-        loopSource.volume = masterVolume;
-    }
+        // THỰC HIỆN LÊN LỊCH (Gapless)
 
+        // 1. Chọn AudioSource đang rảnh
+        AudioSource source = audioSourcePool[toggle];
+        source.clip = clipToPlay;
+        source.volume = masterVolume;
 
-    private void PlayLoopImmediately(AudioClip loop)
-    {
-        loopSource.clip = loop;
-        loopSource.volume = masterVolume;
-        loopSource.Play();
-    }
+        // 2. PlayScheduled: nối nhạc không bị khựng
+        source.PlayScheduled(nextStartTime);
 
-    private void StopCurrentRoutine()
-    {
-        if (musicCoroutine != null) StopCoroutine(musicCoroutine);
-    }
+        // 3. Cộng dồn thời gian cho lần tiếp theo
+        double duration = (double)clipToPlay.samples / clipToPlay.frequency;
+        nextStartTime += duration;
 
-    private void SetupSingleton()
-    {
-        if (Instance == null) Instance = this;
-        else Destroy(gameObject);
-    }
-
-    private void SetupAudioSources()
-    {
-        if (introSource == null) introSource = gameObject.AddComponent<AudioSource>();
-        if (loopSource == null) loopSource = gameObject.AddComponent<AudioSource>();
-
-        introSource.playOnAwake = false;
-        loopSource.playOnAwake = false;
-        loopSource.loop = true;
-
-        currentIntroClip = introSource.clip;
-        currentLoopClip = loopSource.clip;
+        // 4. Đảo chiều nguồn phát (0 -> 1 -> 0...)
+        toggle = 1 - toggle;
     }
 }
