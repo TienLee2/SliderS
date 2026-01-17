@@ -2,13 +2,13 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Video;
 
 public class SceneConfigWizard : EditorWindow
 {
     private SceneController targetScript;
-    private int step = 0; // 0: Setup, 1: Characters, 2: Scenes, 3: Finish
+    private int step = 0;
 
-    // Step 0
     private int numScenes = 1;
     private int numChars = 1;
 
@@ -143,7 +143,19 @@ public class SceneConfigWizard : EditorWindow
             GUILayout.Label($"Cấu hình Scene {i + 1} (Phím {i + 1})", EditorStyles.boldLabel);
 
             tempSceneList[i].sceneName = EditorGUILayout.TextField("Tên Scene:", tempSceneList[i].sceneName);
-            tempSceneList[i].backgroundSprite = (Sprite)EditorGUILayout.ObjectField("Background:", tempSceneList[i].backgroundSprite, typeof(Sprite), false);
+
+            // [NEW] Phần chọn Video hoặc Ảnh
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Background:", GUILayout.Width(80));
+            GUILayout.BeginVertical();
+            tempSceneList[i].backgroundSprite = (Sprite)EditorGUILayout.ObjectField("Ảnh tĩnh:", tempSceneList[i].backgroundSprite, typeof(Sprite), false);
+            tempSceneList[i].backgroundVideo = (VideoClip)EditorGUILayout.ObjectField("Video Clip:", tempSceneList[i].backgroundVideo, typeof(VideoClip), false);
+
+            if (tempSceneList[i].backgroundVideo != null)
+                EditorGUILayout.HelpBox("Đang dùng Video (Ảnh tĩnh sẽ bị ẩn)", MessageType.Info);
+
+            GUILayout.EndVertical();
+            GUILayout.EndHorizontal();
 
             GUILayout.Space(5);
             GUILayout.Label("Chọn nhân vật xuất hiện:", EditorStyles.label);
@@ -159,7 +171,6 @@ public class SceneConfigWizard : EditorWindow
 
                 GUILayout.BeginHorizontal();
 
-                // 1. Checkbox chọn
                 bool toggle = EditorGUILayout.Toggle(isSelected, GUILayout.Width(20));
                 GUILayout.Label(masterChar.characterName, GUILayout.Width(100));
 
@@ -167,7 +178,6 @@ public class SceneConfigWizard : EditorWindow
                 {
                     if (!isSelected)
                     {
-                        // Mặc định thêm mới vào Slot Giữa (1)
                         existingConfig = new SceneController.SceneCharacterInstance
                         {
                             data = masterChar,
@@ -177,11 +187,9 @@ public class SceneConfigWizard : EditorWindow
                         tempSceneList[i].charactersInScene.Add(existingConfig);
                     }
 
-                    // 2. Toolbar chọn Slot Q/W/E
                     GUILayout.Label("Vị trí:", GUILayout.Width(40));
                     existingConfig.targetSlotIndex = GUILayout.Toolbar(existingConfig.targetSlotIndex, slotOptions, GUILayout.Width(200));
 
-                    // 3. Start Active
                     GUILayout.Space(10);
                     GUILayout.Label("Hiện sẵn:", GUILayout.Width(60));
                     existingConfig.startActive = EditorGUILayout.Toggle(existingConfig.startActive);
@@ -209,7 +217,6 @@ public class SceneConfigWizard : EditorWindow
         GUILayout.EndHorizontal();
     }
 
-    // --- FINISH ---
     void DrawStep_Finish()
     {
         EditorGUILayout.HelpBox("Đã lưu cấu hình thành công! Hãy bấm Play để kiểm tra.", MessageType.Info);

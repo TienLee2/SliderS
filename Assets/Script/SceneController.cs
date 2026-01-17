@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using TransitionsPlus;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class SceneController : MonoBehaviour
 {
     [Header("UI References")]
     public Image backgroundImage;
+    public RawImage backgroundVideoDisplay;
+    public VideoPlayer videoPlayer;
+
     public Image[] characterSlots; // 0:Left(Q), 1:Center(W), 2:Right(E)
 
     [Header("Transition Settings")]
@@ -20,18 +24,14 @@ public class SceneController : MonoBehaviour
     public Color selectedColor = Color.white;
     public Color unselectedColor = Color.gray;
 
-    // --- DỮ LIỆU ---
-    [HideInInspector] // Ẩn đi để dùng Wizard config cho gọn
     public List<SceneData> sceneList = new List<SceneData>();
 
-    // --- RUNTIME STATE ---
     private int currentSceneIndex = 0;
     private bool[] isSelected;
     private Dictionary<KeyCode, float> lastKeyPressTimes = new Dictionary<KeyCode, float>();
     private Dictionary<int, CharacterData> slotMap = new Dictionary<int, CharacterData>();
     private bool isTransitioning = false;
 
-    // --- CẤU TRÚC DỮ LIỆU ---
     [System.Serializable]
     public class CharacterData
     {
@@ -53,6 +53,7 @@ public class SceneController : MonoBehaviour
     {
         public string sceneName;
         public Sprite backgroundSprite;
+        public VideoClip backgroundVideo;
         public List<SceneCharacterInstance> charactersInScene = new List<SceneCharacterInstance>();
     }
 
@@ -63,6 +64,13 @@ public class SceneController : MonoBehaviour
         lastKeyPressTimes[KeyCode.W] = 0;
         lastKeyPressTimes[KeyCode.E] = 0;
         lastKeyPressTimes[KeyCode.Tab] = 0;
+
+        if (videoPlayer != null)
+        {
+            videoPlayer.playOnAwake = false;
+            videoPlayer.isLooping = false; // Loop
+            videoPlayer.renderMode = VideoRenderMode.APIOnly;
+        }
 
         // Load scene đầu tiên ngay lập tức (không effect)
         LoadSceneDataImmediately(0);
@@ -117,12 +125,39 @@ public class SceneController : MonoBehaviour
     void LoadSceneDataImmediately(int index)
     {
         currentSceneIndex = index;
+        SceneData data = sceneList[currentSceneIndex];
 
-        // Đổi background
-        if (backgroundImage != null)
-            backgroundImage.sprite = sceneList[currentSceneIndex].backgroundSprite;
+        // 1. XỬ LÝ BACKGROUND (VIDEO vs ẢNH)
+        if (data.backgroundVideo != null)
+        {
+            if (backgroundImage != null) backgroundImage.gameObject.SetActive(false); // Tắt khung ảnh tĩnh
 
-        // Reset Slot 
+            if (videoPlayer != null && backgroundVideoDisplay != null)
+            {
+                backgroundVideoDisplay.gameObject.SetActive(true);
+                videoPlayer.clip = data.backgroundVideo;
+
+                videoPlayer.prepareCompleted += (source) =>
+                {
+                    backgroundVideoDisplay.texture = source.texture;
+                    source.Play();
+                };
+                videoPlayer.Prepare();
+            }
+        }
+        else
+        {
+            // --- Chế độ Ảnh tĩnh ---
+            if (videoPlayer != null) videoPlayer.Stop();
+            if (backgroundVideoDisplay != null) backgroundVideoDisplay.gameObject.SetActive(false);
+
+            if (backgroundImage != null)
+            {
+                backgroundImage.gameObject.SetActive(true);
+                backgroundImage.sprite = data.backgroundSprite;
+            }
+        }
+
         slotMap.Clear();
         foreach (var slot in characterSlots)
         {
@@ -130,28 +165,24 @@ public class SceneController : MonoBehaviour
             slot.sprite = null;
         }
 
-        // Setup nhân vật mới 
-        var currentSceneChars = sceneList[currentSceneIndex].charactersInScene;
-        foreach (var charInst in currentSceneChars)
+        foreach (var charInst in data.charactersInScene)
         {
             int slotIdx = charInst.targetSlotIndex;
             if (slotIdx >= 0 && slotIdx < characterSlots.Length)
             {
-                // Gán ảnh
                 characterSlots[slotIdx].sprite = charInst.data.defaultSprite;
                 characterSlots[slotIdx].preserveAspect = true; // Giữ tỉ lệ ảnh gốc
 
                 // Set trạng thái bật/tắt
                 characterSlots[slotIdx].gameObject.SetActive(charInst.startActive);
 
-                // Lưu vào map để điều khiển biểu cảm sau này
                 if (!slotMap.ContainsKey(slotIdx))
                 {
                     slotMap.Add(slotIdx, charInst.data);
                 }
             }
         }
-        Debug.Log($"Loaded Scene: {sceneList[index].sceneName}");
+        Debug.Log($"Loaded Scene: {data.sceneName}");
     }
 
     // --- XỬ LÝ INPUT ---

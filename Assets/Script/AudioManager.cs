@@ -1,18 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
 
+    [System.Serializable]
+    public class MusicTrack
+    {
+        public string trackName;
+        public AudioClip introClip;
+        public AudioClip loopClip;
+    }
+
     [Header("Configuration")]
     [Range(0f, 1f)] public float masterVolume = 1.0f;
     public double lookAheadTime = 1.0f;
 
-    [Header("Data")]
-    public AudioClip defaultIntroClip;
-    public AudioClip defaultLoopClip;
+    [Header("Playlist Data")]
+    // Element 0 = Nút U
+    // Element 1 = Nút I
+    // Element 2 = Nút O
+    // Element 3 = Nút P
+    public List<MusicTrack> musicTracks = new List<MusicTrack>();
 
     private AudioSource[] audioSourcePool;
     private int toggle = 0;
@@ -20,16 +30,18 @@ public class AudioManager : MonoBehaviour
     private AudioClip currentIntro;
     private AudioClip currentLoop;
 
-    private double nextStartTime; 
+    private double nextStartTime;
     private bool isPlaying = false;
-    [SerializeField] private bool hasIntroPlayed = false;
+    private bool hasIntroPlayed = false;
+
+    // Theo dõi bài nào đang phát (-1 là không có bài nào trong playlist)
+    private int currentTrackIndex = -1;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        // Tạo 2 AudioSource để thay phiên nhau phát 
         audioSourcePool = new AudioSource[2];
         for (int i = 0; i < 2; i++)
         {
@@ -37,29 +49,15 @@ public class AudioManager : MonoBehaviour
             audioSourcePool[i].playOnAwake = false;
             audioSourcePool[i].loop = false;
         }
-
-        // Load data mặc định
-        currentIntro = defaultIntroClip;
-        currentLoop = defaultLoopClip;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            if (!isPlaying)
-            {
-                if (defaultIntroClip != null || defaultLoopClip != null)
-                {
-                    PlayBGM(defaultIntroClip, defaultLoopClip);
-                    Debug.Log(">>> [AudioManager] Bắt đầu phát nhạc (Intro -> Loop)...");
-                }
-            }
-            else
-            {
-                StopMusic();
-            }
-        }
+        // --- XỬ LÝ INPUT ---
+        if (Input.GetKeyDown(KeyCode.U)) ToggleTrack(0);
+        if (Input.GetKeyDown(KeyCode.I)) ToggleTrack(1);
+        if (Input.GetKeyDown(KeyCode.O)) ToggleTrack(2);
+        if (Input.GetKeyDown(KeyCode.P)) ToggleTrack(3);
 
         if (isPlaying)
         {
@@ -68,6 +66,34 @@ public class AudioManager : MonoBehaviour
                 ScheduleNextClip();
             }
         }
+    }
+
+    public void ToggleTrack(int index)
+    {
+        if (index < 0 || index >= musicTracks.Count)
+        {
+            Debug.LogWarning($"[AudioManager] Chưa thiết lập nhạc cho vị trí số {index}!");
+            return;
+        }
+
+        if (isPlaying && currentTrackIndex == index)
+        {
+            StopMusic();
+            Debug.Log($">>> [AudioManager] Đã tắt nhạc (Track {index})");
+        }
+        else
+        {
+            PlayTrackByIndex(index);
+            Debug.Log($">>> [AudioManager] Đang phát Track {index}: {musicTracks[index].trackName}");
+        }
+    }
+
+    private void PlayTrackByIndex(int index)
+    {
+        MusicTrack track = musicTracks[index];
+        PlayBGM(track.introClip, track.loopClip);
+
+        currentTrackIndex = index;
     }
 
     public void PlayBGM(AudioClip introClip, AudioClip loopClip)
@@ -88,6 +114,7 @@ public class AudioManager : MonoBehaviour
     public void StopMusic()
     {
         isPlaying = false;
+        currentTrackIndex = -1;
         foreach (var source in audioSourcePool)
         {
             source.Stop();
@@ -116,28 +143,23 @@ public class AudioManager : MonoBehaviour
         if (currentIntro != null && !hasIntroPlayed)
         {
             clipToPlay = currentIntro;
-            hasIntroPlayed = true; 
+            hasIntroPlayed = true;
         }
         else
         {
             clipToPlay = currentLoop;
         }
 
-        // THỰC HIỆN LÊN LỊCH (Gapless)
+        if (clipToPlay == null) return;
 
-        // 1. Chọn AudioSource đang rảnh
         AudioSource source = audioSourcePool[toggle];
         source.clip = clipToPlay;
         source.volume = masterVolume;
-
-        // 2. PlayScheduled: nối nhạc không bị khựng
         source.PlayScheduled(nextStartTime);
 
-        // 3. Cộng dồn thời gian cho lần tiếp theo
         double duration = (double)clipToPlay.samples / clipToPlay.frequency;
         nextStartTime += duration;
 
-        // 4. Đảo chiều nguồn phát (0 -> 1 -> 0...)
         toggle = 1 - toggle;
     }
 }

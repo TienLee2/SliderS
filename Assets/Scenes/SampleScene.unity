@@ -151,6 +151,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneController
   backgroundImage: {fileID: 908669755}
+  backgroundVideoDisplay: {fileID: 279822397}
+  videoPlayer: {fileID: 327076753}
   characterSlots:
   - {fileID: 985368433}
   - {fileID: 173211311}
@@ -163,38 +165,13 @@ MonoBehaviour:
   unselectedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   sceneList:
   - sceneName: Scene 1
-    backgroundSprite: {fileID: -8060539992624657665, guid: b8d0431a5b0a45643b4ad62f8d9e32a7, type: 3}
-    charactersInScene:
-    - data:
-        characterName: Char 1
-        defaultSprite: {fileID: 1720458001136788318, guid: c7464f5b4a8cc2644956378121f02d1c, type: 3}
-        expressions:
-        - {fileID: 1720458001136788318, guid: c7464f5b4a8cc2644956378121f02d1c, type: 3}
-        - {fileID: -386646645, guid: c7464f5b4a8cc2644956378121f02d1c, type: 3}
-        - {fileID: -460585100, guid: c7464f5b4a8cc2644956378121f02d1c, type: 3}
-      startActive: 1
-      targetSlotIndex: 1
+    backgroundSprite: {fileID: 3379134407924901990, guid: 0e401e4b6db606c4b95ed3350c89b219, type: 3}
+    backgroundVideo: {fileID: 0}
+    charactersInScene: []
   - sceneName: Scene 2
-    backgroundSprite: {fileID: 5299262953671590834, guid: d0e1c150f79434b43bf20a149c0bf14e, type: 3}
-    charactersInScene:
-    - data:
-        characterName: Char 2
-        defaultSprite: {fileID: 1385631395112674361, guid: a22461a049a482e4686f76ecd7106a3b, type: 3}
-        expressions:
-        - {fileID: 1385631395112674361, guid: a22461a049a482e4686f76ecd7106a3b, type: 3}
-        - {fileID: -1260347874, guid: a22461a049a482e4686f76ecd7106a3b, type: 3}
-        - {fileID: 864902882, guid: a22461a049a482e4686f76ecd7106a3b, type: 3}
-      startActive: 0
-      targetSlotIndex: 0
-    - data:
-        characterName: Char 3
-        defaultSprite: {fileID: 532282208441007744, guid: 68240127bc459d842a9d6b72315bb2f2, type: 3}
-        expressions:
-        - {fileID: 532282208441007744, guid: 68240127bc459d842a9d6b72315bb2f2, type: 3}
-        - {fileID: -1341576622, guid: 68240127bc459d842a9d6b72315bb2f2, type: 3}
-        - {fileID: -730199250, guid: 68240127bc459d842a9d6b72315bb2f2, type: 3}
-      startActive: 1
-      targetSlotIndex: 1
+    backgroundSprite: {fileID: 0}
+    backgroundVideo: {fileID: 32900000, guid: b67905e3c77403249858212fbdec777f, type: 3}
+    charactersInScene: []
 --- !u!4 &117803877
 Transform:
   m_ObjectHideFlags: 0
@@ -238,9 +215,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   masterVolume: 1
   lookAheadTime: 1
-  defaultIntroClip: {fileID: 8300000, guid: ac2f15c86d180b049b8bed9091ad8199, type: 3}
-  defaultLoopClip: {fileID: 8300000, guid: 8386b3ac0bbdd744696c45dad52e3f01, type: 3}
-  hasIntroPlayed: 0
+  musicTracks:
+  - trackName: SS
+    introClip: {fileID: 8300000, guid: ac2f15c86d180b049b8bed9091ad8199, type: 3}
+    loopClip: {fileID: 8300000, guid: 8386b3ac0bbdd744696c45dad52e3f01, type: 3}
+  - trackName: GG
+    introClip: {fileID: 8300000, guid: 00bd029cb86d4f447964f05bcf76385d, type: 3}
+    loopClip: {fileID: 8300000, guid: 7dcc1a1bdc1f401448c76380d77ccdaf, type: 3}
+  - trackName: dsf
+    introClip: {fileID: 8300000, guid: f5ef50d4f3c803e45a0ff7e0844807ba, type: 3}
+    loopClip: {fileID: 8300000, guid: b6dc00fd92303204b84d5b0fb7265cbd, type: 3}
 --- !u!1 &173211309
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,6 +300,78 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 173211309}
   m_CullTransparentMesh: 1
+--- !u!1 &279822395
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 279822396}
+  - component: {fileID: 279822398}
+  - component: {fileID: 279822397}
+  m_Layer: 5
+  m_Name: VideoPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &279822396
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279822395}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 922176816}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &279822397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279822395}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1344c3c82d62a2a41a3576d8abb8e3ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 8400000, guid: f297378b1738e0b4ea0347fe6ff009c3, type: 2}
+  m_UVRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
+--- !u!222 &279822398
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279822395}
+  m_CullTransparentMesh: 1
 --- !u!1 &319046460
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,6 +446,87 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 319046460}
+  m_CullTransparentMesh: 1
+--- !u!1 &327076751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 327076752}
+  - component: {fileID: 327076754}
+  - component: {fileID: 327076753}
+  m_Layer: 5
+  m_Name: VideoPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &327076752
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327076751}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 960, y: 540}
+  m_SizeDelta: {x: 1920, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!328 &327076753
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327076751}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: 96d81250ac6036540864fe47d1dc93d4, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 0}
+  m_TargetTexture: {fileID: 8400000, guid: f297378b1738e0b4ea0347fe6ff009c3, type: 2}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 2
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources:
+  - {fileID: 0}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 0
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
+--- !u!222 &327076754
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 327076751}
   m_CullTransparentMesh: 1
 --- !u!1 &395639225
 GameObject:
@@ -897,6 +1034,7 @@ RectTransform:
   - {fileID: 985368432}
   - {fileID: 173211310}
   - {fileID: 319046461}
+  - {fileID: 279822396}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1246,4 +1384,5 @@ SceneRoots:
   - {fileID: 117803877}
   - {fileID: 922176816}
   - {fileID: 395639228}
+  - {fileID: 327076752}
   - {fileID: 881441543}
