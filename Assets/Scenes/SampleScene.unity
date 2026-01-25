@@ -219,12 +219,15 @@ MonoBehaviour:
   - trackName: SS
     introClip: {fileID: 8300000, guid: ac2f15c86d180b049b8bed9091ad8199, type: 3}
     loopClip: {fileID: 8300000, guid: 8386b3ac0bbdd744696c45dad52e3f01, type: 3}
+    volume: 0.127
   - trackName: GG
     introClip: {fileID: 8300000, guid: 00bd029cb86d4f447964f05bcf76385d, type: 3}
     loopClip: {fileID: 8300000, guid: 7dcc1a1bdc1f401448c76380d77ccdaf, type: 3}
+    volume: 0.094
   - trackName: dsf
     introClip: {fileID: 8300000, guid: f5ef50d4f3c803e45a0ff7e0844807ba, type: 3}
     loopClip: {fileID: 8300000, guid: b6dc00fd92303204b84d5b0fb7265cbd, type: 3}
+    volume: 0.041
 --- !u!1 &173211309
 GameObject:
   m_ObjectHideFlags: 0

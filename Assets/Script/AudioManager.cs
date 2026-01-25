@@ -11,6 +11,9 @@ public class AudioManager : MonoBehaviour
         public string trackName;
         public AudioClip introClip;
         public AudioClip loopClip;
+
+        [Range(0f, 1f)]
+        public float volume = 1.0f;
     }
 
     [Header("Configuration")]
@@ -18,10 +21,6 @@ public class AudioManager : MonoBehaviour
     public double lookAheadTime = 1.0f;
 
     [Header("Playlist Data")]
-    // Element 0 = Nút U
-    // Element 1 = Nút I
-    // Element 2 = Nút O
-    // Element 3 = Nút P
     public List<MusicTrack> musicTracks = new List<MusicTrack>();
 
     private AudioSource[] audioSourcePool;
@@ -29,12 +28,12 @@ public class AudioManager : MonoBehaviour
 
     private AudioClip currentIntro;
     private AudioClip currentLoop;
+    private float currentTrackVolume = 1.0f;
 
     private double nextStartTime;
     private bool isPlaying = false;
     private bool hasIntroPlayed = false;
 
-    // Theo dõi bài nào đang phát (-1 là không có bài nào trong playlist)
     private int currentTrackIndex = -1;
 
     private void Awake()
@@ -53,7 +52,6 @@ public class AudioManager : MonoBehaviour
 
     private void Update()
     {
-        // --- XỬ LÝ INPUT ---
         if (Input.GetKeyDown(KeyCode.U)) ToggleTrack(0);
         if (Input.GetKeyDown(KeyCode.I)) ToggleTrack(1);
         if (Input.GetKeyDown(KeyCode.O)) ToggleTrack(2);
@@ -68,6 +66,7 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    // Hàm xử lý logic Bật/Tắt hoặc Chuyển bài
     public void ToggleTrack(int index)
     {
         if (index < 0 || index >= musicTracks.Count)
@@ -91,12 +90,13 @@ public class AudioManager : MonoBehaviour
     private void PlayTrackByIndex(int index)
     {
         MusicTrack track = musicTracks[index];
-        PlayBGM(track.introClip, track.loopClip);
+
+        PlayBGM(track.introClip, track.loopClip, track.volume);
 
         currentTrackIndex = index;
     }
 
-    public void PlayBGM(AudioClip introClip, AudioClip loopClip)
+    public void PlayBGM(AudioClip introClip, AudioClip loopClip, float trackVolume = 1.0f)
     {
         if (isPlaying && currentIntro == introClip && currentLoop == loopClip) return;
 
@@ -104,6 +104,7 @@ public class AudioManager : MonoBehaviour
 
         currentIntro = introClip;
         currentLoop = loopClip;
+        currentTrackVolume = trackVolume;
 
         if (currentIntro != null || currentLoop != null)
         {
@@ -130,8 +131,9 @@ public class AudioManager : MonoBehaviour
 
         nextStartTime = AudioSettings.dspTime + 0.2;
 
-        audioSourcePool[0].volume = masterVolume;
-        audioSourcePool[1].volume = masterVolume;
+        float finalVolume = masterVolume * currentTrackVolume;
+        audioSourcePool[0].volume = finalVolume;
+        audioSourcePool[1].volume = finalVolume;
 
         ScheduleNextClip();
     }
@@ -154,7 +156,9 @@ public class AudioManager : MonoBehaviour
 
         AudioSource source = audioSourcePool[toggle];
         source.clip = clipToPlay;
-        source.volume = masterVolume;
+
+        source.volume = masterVolume * currentTrackVolume;
+
         source.PlayScheduled(nextStartTime);
 
         double duration = (double)clipToPlay.samples / clipToPlay.frequency;
